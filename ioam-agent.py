@@ -50,7 +50,7 @@ BITFIELD_BIT10 = 1 << 21 # Opaque State Snapshot
 
 
 def help():
-   print("Syntax: "+ os.path.basename(__file__) +" -i <interface>")
+   print("Syntax: "+ os.path.basename(__file__) +" -i <interface> [ -o | -g ]")
 
 def help_str(err):
    print(err)
@@ -151,8 +151,7 @@ def parse_ioam_trace(data):
          i += node_len * 4
 
          if trace_type & TRACE_BIT22:
-            opaque_len, node.OSS.SchemaId = unpack(">u8u24",
-                        data[i:i+4])
+            opaque_len, node.OSS.SchemaId = unpack(">u8u24", data[i:i+4])
             if opaque_len > 0:
                node.OSS.Data = data[i+4:i+4+opaque_len]
 
@@ -180,13 +179,10 @@ def parse(packet):
 
       traces = []
       while hbh_len > 0:
-         opt_type, opt_len, _, ioam_type = unpack(">u8u8u8u8",
-                         packet[i:i+4])
+         opt_type, opt_len, _, ioam_type = unpack(">u8u8u8u8", packet[i:i+4])
          opt_len += 2
 
-         if (opt_type == IPV6_TLV_IOAM and
-             ioam_type == IOAM_PREALLOC_TRACE):
-
+         if (opt_type == IPV6_TLV_IOAM and ioam_type == IOAM_PREALLOC_TRACE):
             trace = parse_ioam_trace(packet[i+4:i+opt_len])
             if trace is not None:
                traces.append(trace)
@@ -227,7 +223,7 @@ def listen(interface, output):
          traces = parse(sock.recv(65565))
          if traces:
             report_ioam(report_func, traces)
-
+            
    except KeyboardInterrupt:
       print("[IOAM Agent] Closing...")
    except Exception as e:
